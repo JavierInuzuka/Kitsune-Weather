@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="WeatherInCity">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Kitsune Weather</title>
+		<meta name="author" content="Nazar Ivato" />
+		<link rel="shortcut icon" href="weather.ico">
+		<!-- <script src="js/lib/jquery-1.11.1.min.js"></script> -->
+		<script src="js/jquery-1.11.3.min.js"></script>
+		<script src="js/lib/bootstrap.min.js"></script>
+		<script src="js/lib/angular.min.js"></script>
+		<script src="js/app.js"></script>
+		<script src="js/controllers/cities.js"></script>
+		<script src="js/controllers/forecast.js"></script>
+		<script src="js/services/weather.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="css/weather.css">
+	</head>
+	<body ng-controller="CitiesController as cts">
+        <input type="button" value="Imprimir" onClick="window.print()">
+<div class="container" align="center">
+      <div class="page-header">
+                <h1><img src="../Forecast/logo.png" width="239" height="239">  Kitsune <small>Weather</small></h1>
+  </div>
+
+			<div class="row">
+				<div class="col-md-4"> </div>
+				<div class="col-md-4">
+
+                    <form class="form" ng-submit="cts.submitCity()">
+                        <div class="form-group">
+                            <div class="input-group">
+                              <input type="text" class="form-control" placeholder="Ingrese la ciudad" ng-model="cts.enteredCity" required ng-trim="false" />
+                                <div class="input-group-btn">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span></button>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li ng-repeat="cityOption in cts.cityOptions">
+                                            <a href="#" ng-click="cts.submitCity(cityOption)">
+                                                <span class="glyphicon glyphicon-map-marker"></span> {{cityOption}}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+				</div>
+			    <div class="col-md-4"> </div>
+		    </div>
+
+		    <div class="row" ng-controller="ForecastController as fct">
+                <div class="panel panel-default" ng-show="fct.weather.forecast.weather" >
+                    <div class="panel-heading">
+                        <button type="button" class="close pull-left" ng-click="fct.removeForecast()"><span aria-hidden="true">&times;</span></button>
+                        Pronóstico de 6 días:
+                        <strong>{{fct.weather.forecast.city}}, {{fct.weather.forecast.country}}</strong>
+                    </div>
+                    <div class="panel-body">
+        		        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center text-muted" ng-repeat="time in fct.weather.timeScale">
+                                        <span class="glyphicon glyphicon-time"></span> {{time}}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td ng-repeat="time in fct.weather.timeScale">
+                                        <div class="list-group" ng-show="fct.weather.forecast.weather[fct.date][time]">
+                                            <a class="list-group-item">
+                                                <img class="small-icon" ng-src="img/{{fct.weather.forecast.weather[fct.date][time].icon}}" />
+                                                <small><span class="badge pull-left">{{fct.weather.forecast.weather[fct.date][time].temperature}}&deg;C</span><br /></small>
+                                                <small><span class="glyphicon glyphicon-dashboard"></span> {{fct.weather.forecast.weather[fct.date][time].pressure}} hPa<br /></small>
+                                                <small><span class="glyphicon glyphicon-tint"></span> {{fct.weather.forecast.weather[fct.date][time].humidity}}%<br /></small>
+                                                <small>{{fct.weather.forecast.weather[fct.date][time].weather}}</small>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" ng-repeat="date in fct.weather.forecastDates">
+                                        <div class="list-group">
+                                            <a class="list-group-item clickable" ng-class="{'date-selected': date == fct.date}" ng-click="fct.setDate(date)">
+                                                <span class="glyphicon glyphicon-calendar"></span> {{date | date:'EEE'}} <br /><small>{{date | date:'dd MMM yyyy'}}</small>
+                                            </a>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+		    </div>
+
+            <div class="row" align="">
+
+                <div class="col-md-4" ng-repeat="(cityName, city) in cts.cities">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <button type="button" class="close pull-left" ng-click="cts.removeCity(cityName)"><span aria-hidden="true">&times;</span></button>
+                            <strong>{{city.name}}, {{city.country}} </strong>
+                            <button class="btn btn-default btn-xs" ng-click="cts.getForecast(city.name, city.country)">
+                                <span class="glyphicon glyphicon-stats"></span> Pronóstico
+                            </button>
+                            <span class="badge pull-right">{{city.temperature}} &deg;C</span>
+                        </div>
+                        <div class="panel-body">
+                            <img class="icon pull-right" ng-src="img/{{city.icon}}" alt="{{city.weather}}" />
+                            <div><strong>Temperatura: </strong>{{city.temperature}}&deg;C</div>
+                            <div><strong>Presión: </strong>{{city.pressure}} hPa</div>
+                            <div><strong>Humedad: </strong>{{city.humidity}}%</div>
+                            <div><strong>Pronóstico: </strong>{{city.weather}}</div>
+                      </div>
+                    </div>
+                </div>
+
+			</div>
+		</div>
+</body>
+</html>
